@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todays Weather</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #4b6cb7, #182848);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            color: #182848;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        input:focus {
+            border-color: #4b6cb7;
+        }
+
+        button {
+            padding: 12px 18px;
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #182848;
+        }
+
+        .weather-info {
+            display: none;
+        }
+
+        .temp {
+            font-size: 45px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #182848;
+        }
+
+        .city {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .details {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+
+        .error {
+            color: red;
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Todays Weather</h1>
+        <div class="search">
+            <input type="text" id="cityInput" placeholder="शहराचे नाव टाका (उदा. Pune)">
+            <button onclick="getWeather()">शोधा</button>
+        </div>
+
+        <p class="error" id="errorMsg">शहराचे नाव चुकीचे आहे किंवा माहिती सापडली नाही!</p>
+
+        <div class="weather-info" id="weatherInfo">
+            <h2 class="city" id="cityName">--</h2>
+            <div class="temp" id="temp">--°C</div>
+            <p id="description" style="text-transform: capitalize; font-weight: 500;">--</p>
+            
+            <div class="details">
+                <div>
+                    <p style="font-size: 14px; color: #666;">आर्द्रता (Humidity)</p>
+                    <p id="humidity" style="font-weight: bold; font-size: 18px;">--%</p>
+                </div>
+                <div>
+                    <p style="font-size: 14px; color: #666;">वाऱ्याचा वेग</p>
+                    <p id="wind" style="font-weight: bold; font-size: 18px;">-- km/h</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = "602d33d45290edee1160edeb16f8ef25";
+
+        async function getWeather() {
+            const city = document.getElementById("cityInput").value;
+            const errorMsg = document.getElementById("errorMsg");
+            const weatherInfo = document.getElementById("weatherInfo");
+
+            if (city === "") {
+                alert("कृपया शहराचे नाव टाका!");
+                return;
+            }
+
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=mr`;
+
+            try {
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    errorMsg.style.display = "block";
+                    weatherInfo.style.display = "none";
+                    return;
+                }
+
+                const data = await response.json();
+
+                document.getElementById("cityName").innerText = data.name + ", " + data.sys.country;
+                document.getElementById("temp").innerText = Math.round(data.main.temp) + "°C";
+                document.getElementById("description").innerText = data.weather[0].description;
+                document.getElementById("humidity").innerText = data.main.humidity + "%";
+                document.getElementById("wind").innerText = data.wind.speed + " km/h";
+
+                errorMsg.style.display = "none";
+                weatherInfo.style.display = "block";
+
+            } catch (error) {
+                errorMsg.style.display = "block";
+                weatherInfo.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
